@@ -1,27 +1,27 @@
-from flask import Flask, request, jsonify, render_template
-import torch
-from PIL import Image
-import io
+import os
+from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-# Load the YOLOv5 model from Ultralytics
-model = torch.hub.load('ultralytics/yolov5', 'yolov5s')  # lightweight model
+@app.route("/")
+def index():
+    return "ESP32-CAM Waste Classifier Server is Running!"
 
-@app.route('/')
-def home():
-    return render_template('index.html')  # Serve the frontend form
+@app.route("/classify", methods=["POST"])
+def classify():
+    if 'image' not in request.files:
+        return jsonify({"error": "No image uploaded"}), 400
 
-@app.route('/upload', methods=['POST'])
-def upload():
-    image = request.files['file']
-    img = Image.open(image.stream)
+    image_file = request.files['image']
     
-    # Get model predictions
-    results = model(img)
-    
-    # Return results as JSON
-    return jsonify(results.pandas().xyxy[0].to_dict(orient="records"))
+    # TODO: Replace this with actual model prediction
+    # image_file.read() would give you the raw bytes
+    print("Received image:", image_file.filename)
+    prediction = "biodegradable"  # Dummy response
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    return jsonify({"classification": prediction})
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 10000))
+    print(f"Starting Flask server on port {port}...")
+    app.run(host="0.0.0.0", port=port)
