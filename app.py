@@ -9,7 +9,7 @@ app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg'}
 
-# Load model
+# Load model (ensure it's in your 'model/' directory or another location)
 MODEL_PATH = 'model/waste_classifier_model.h5'
 model = tf.keras.models.load_model(MODEL_PATH)
 
@@ -56,4 +56,6 @@ def uploaded_file(filename):
     return redirect(url_for('static', filename='uploads/' + filename), code=301)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=10000)
+    # Use the PORT environment variable if available (Render uses this)
+    port = int(os.environ.get("PORT", 10000))  # Default to 10000 if not set
+    app.run(host='0.0.0.0', port=port)
